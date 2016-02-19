@@ -37,9 +37,6 @@ extern {
     fn je_malloc_usable_size(ptr: *const c_void) -> usize;
 }
 
-#[cfg(prefixed_jemalloc)]
-use je_malloc_usable_size as malloc_usable_size;
-
 /// A wrapper for je_malloc_usable_size that handles `EMPTY` and returns `usize`.
 ///
 /// `unsafe` because the caller must ensure that the pointer is from jemalloc.
@@ -47,6 +44,9 @@ use je_malloc_usable_size as malloc_usable_size;
 /// https://doc.rust-lang.org/book/custom-allocators.html
 #[cfg(not(target_os = "windows"))]
 pub unsafe fn heap_size_of(ptr: *const c_void) -> usize {
+    #[cfg(prefixed_jemalloc)]
+    use je_malloc_usable_size as malloc_usable_size;
+
     if ptr == 0x01 as *const c_void {
         0
     } else {
